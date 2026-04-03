@@ -14,7 +14,6 @@ import { analyzeFile, saveInputHistory } from "@/lib/api";
 import type { UploadAnalyzeResponse, ImpulseThresholds } from "@/lib/types";
 import AuthButton from "@/components/AuthButton";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
 
 type Mode = "input" | "upload";
 
