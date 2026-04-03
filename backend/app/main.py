@@ -11,7 +11,10 @@ from __future__ import annotations
 
 import os
 
+# .env를 가장 먼저 로드 — 모듈 레벨 os.getenv() 호출보다 앞서야 함
 from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,8 +22,6 @@ from app.db.database import Base, engine
 from app.models import history as _history_models  # noqa: F401 — 테이블 등록
 from app.models import user as _user_models        # noqa: F401 — 테이블 등록
 from app.routers import analyze, auth, history, upload
-
-load_dotenv()
 
 # 테이블 자동 생성 (SQLite)
 Base.metadata.create_all(bind=engine)
