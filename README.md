@@ -1,4 +1,4 @@
-# 💸 MyWallet v3 — 감정 소비 분석 서비스
+# 💸 MyWallet v2 — 감정 소비 분석 서비스
 
 > 지출 + 감정 데이터를 기반으로 소비 습관을 진단하고, 행동 변화까지 유도하는 개인 소비 코치
 
@@ -271,9 +271,9 @@ v1(MyWallet)의 하이브리드 AI 전략을 계승:
 
 ---
 
-## 📊 v1 → v3 발전 비교
+## 📊 v1 → v2 발전 비교
 
-| 항목 | v1 (MyWallet) | v3 (MyWallet v3) |
+| 항목 | v1 (MyWallet) | v2 (MyWallet v2) |
 |------|--------------|-----------------|
 | 입력 방식 | CSV/Excel 파일 업로드 | 실시간 직접 입력 |
 | 프레임워크 | Streamlit (Python) | Next.js + FastAPI |

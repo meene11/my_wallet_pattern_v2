@@ -4,7 +4,7 @@ export default function Hero() {
       {/* 배지 */}
       <span className="inline-block mb-5 px-4 py-1.5 rounded-full text-xs font-medium
                        bg-white/15 border border-white/30 text-white/90 tracking-wide">
-        ✨ 감정 소비 분석 서비스 v3
+        ✨ 감정 소비 분석 서비스 v2
       </span>
 
       {/* 타이틀 */}
