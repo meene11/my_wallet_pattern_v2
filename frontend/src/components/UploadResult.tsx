@@ -5,12 +5,16 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
-import type { UploadAnalyzeResponse } from "@/lib/types";
+import type { ImpulseThresholds, UploadAnalyzeResponse } from "@/lib/types";
 import ActionGuide from "@/components/ActionGuide";
+import BlurGate from "@/components/BlurGate";
+import { useAuth } from "@/context/AuthContext";
+import { saveUploadHistory } from "@/lib/api";
 
 interface Props {
-  result: UploadAnalyzeResponse;
-  onReset: () => void;
+  result:     UploadAnalyzeResponse;
+  thresholds?: ImpulseThresholds;
+  onReset:    () => void;
 }
 
 const BRAND_COLORS = [
@@ -37,8 +41,20 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-export default function UploadResult({ result, onReset }: Props) {
-  const [showAll, setShowAll] = useState(false);
+export default function UploadResult({ result, thresholds, onReset }: Props) {
+  const [showAll, setShowAll]   = useState(false);
+  const [saved,   setSaved]     = useState(false);
+  const { appToken, isLoggedIn } = useAuth();
+
+  async function handleSave() {
+    if (!appToken) return;
+    try {
+      await saveUploadHistory(result, appToken, thresholds);
+      setSaved(true);
+    } catch (e) {
+      console.error("이력 저장 실패:", e);
+    }
+  }
 
   const {
     total, count, impulse_count, impulse_amount,
@@ -96,7 +112,24 @@ export default function UploadResult({ result, onReset }: Props) {
         </div>
       </div>
 
+      {/* ── 이력 저장 버튼 (로그인 회원) ── */}
+      {isLoggedIn && !saved && (
+        <button
+          onClick={handleSave}
+          className="w-full mb-4 py-2.5 rounded-xl border border-brand-blue text-brand-blue
+                     text-sm font-semibold hover:bg-brand-light transition-colors"
+        >
+          💾 분석 결과 저장하기
+        </button>
+      )}
+      {saved && (
+        <div className="mb-4 text-center text-xs text-green-600 font-semibold">
+          ✅ 마이페이지에 저장되었습니다
+        </div>
+      )}
+
       {/* ── 차트 ── */}
+      <BlurGate label="소비 패턴 시각화는 회원 전용 기능입니다">
       <div className="card mb-6">
         <p className="card-title">📊 소비 패턴 시각화</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -149,9 +182,11 @@ export default function UploadResult({ result, onReset }: Props) {
           </div>
         </div>
       </div>
+      </BlurGate>
 
       {/* ── 충동소비 항목 목록 ── */}
       {impulse_items.length > 0 && (
+      <BlurGate label="충동소비 의심 항목은 회원 전용 기능입니다">
         <div className="card mb-6">
           <p className="card-title">🚨 충동소비 의심 항목</p>
           <p className="text-xs text-gray-400 mb-4">
@@ -182,10 +217,13 @@ export default function UploadResult({ result, onReset }: Props) {
             </button>
           )}
         </div>
+      </BlurGate>
       )}
 
       {/* ── AI 코치 ── */}
-      <ActionGuide guide={action_guide} />
+      <BlurGate label="오늘의 행동 가이드는 회원 전용 기능입니다">
+        <ActionGuide guide={action_guide} />
+      </BlurGate>
 
       {/* ── 다시 분석 ── */}
       <button onClick={onReset} className="btn-secondary text-sm mb-8">

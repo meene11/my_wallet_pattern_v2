@@ -10,28 +10,35 @@ import ReEngagement  from "@/components/ReEngagement";
 import UploadCard    from "@/components/UploadCard";
 import UploadResult  from "@/components/UploadResult";
 import { useSpending } from "@/hooks/useSpending";
-import { analyzeFile } from "@/lib/api";
+import { analyzeFile, saveInputHistory } from "@/lib/api";
 import type { UploadAnalyzeResponse, ImpulseThresholds } from "@/lib/types";
+import AuthButton from "@/components/AuthButton";
+import { useAuth } from "@/context/AuthContext";
 
 type Mode = "input" | "upload";
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("input");
+  const { appToken, isLoggedIn } = useAuth();
 
   // 직접 입력 모드 상태
   const {
     entries, analysis, isLoading, error,
     addEntry, clearAll, runAnalysis,
   } = useSpending();
+  const [inputSaved,  setInputSaved]  = useState(false);
+  const [inputSaving, setInputSaving] = useState(false);
 
   // 파일 업로드 모드 상태
-  const [uploadResult,  setUploadResult]  = useState<UploadAnalyzeResponse | null>(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
-  const [uploadError,   setUploadError]   = useState<string | null>(null);
+  const [uploadResult,     setUploadResult]     = useState<UploadAnalyzeResponse | null>(null);
+  const [uploadThresholds, setUploadThresholds] = useState<ImpulseThresholds | undefined>();
+  const [uploadLoading,    setUploadLoading]    = useState(false);
+  const [uploadError,      setUploadError]      = useState<string | null>(null);
 
   async function handleFileAnalyze(file: File, thresholds: ImpulseThresholds) {
     setUploadLoading(true);
     setUploadError(null);
+    setUploadThresholds(thresholds);
     try {
       const result = await analyzeFile(file, thresholds);
       setUploadResult(result);
@@ -39,6 +46,19 @@ export default function Home() {
       setUploadError(e instanceof Error ? e.message : "분석 중 오류가 발생했습니다.");
     } finally {
       setUploadLoading(false);
+    }
+  }
+
+  async function handleSaveInput() {
+    if (!appToken || !analysis) return;
+    setInputSaving(true);
+    try {
+      await saveInputHistory(analysis, appToken);
+      setInputSaved(true);
+    } catch (e) {
+      console.error("저장 실패:", e);
+    } finally {
+      setInputSaving(false);
     }
   }
 
@@ -52,6 +72,11 @@ export default function Home() {
   return (
     <main>
       {/* ── [1] HERO ─────────────────────────────────────── */}
+      {/* ── 헤더: 로그인 버튼 ── */}
+      <div className="flex justify-end mb-2">
+        <AuthButton />
+      </div>
+
       <Hero />
 
       {/* ── 모드 탭 ──────────────────────────────────────── */}
@@ -103,12 +128,40 @@ export default function Home() {
 
           {analysis && (
             <>
-              <ResultCard  analysis={analysis} />
-              <Charts      analysis={analysis} />
+              {/* 섹션 구분 */}
+              <div className="section-divider">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">
+                  분석 결과
+                </span>
+              </div>
+
+              <ResultCard analysis={analysis} />
+              <Charts     analysis={analysis} />
               <ActionGuide guide={analysis.action_guide} />
+
+              {/* 이력 저장 버튼 */}
+              {isLoggedIn && (
+                <div className="mb-4">
+                  {inputSaved ? (
+                    <p className="text-center text-xs text-green-600 font-semibold py-2">
+                      ✅ 마이페이지에 저장되었습니다
+                    </p>
+                  ) : (
+                    <button
+                      onClick={handleSaveInput}
+                      disabled={inputSaving}
+                      className="w-full py-2.5 rounded-xl border border-brand-blue text-brand-blue
+                                 text-sm font-semibold hover:bg-brand-light transition-colors"
+                    >
+                      {inputSaving ? "저장 중…" : "💾 분석 결과 저장하기"}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <ReEngagement
                 onAddMore={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                onReset={clearAll}
+                onReset={() => { clearAll(); setInputSaved(false); }}
               />
             </>
           )}
@@ -134,6 +187,7 @@ export default function Home() {
           {uploadResult && (
             <UploadResult
               result={uploadResult}
+              thresholds={uploadThresholds}
               onReset={() => { setUploadResult(null); setUploadError(null); }}
             />
           )}

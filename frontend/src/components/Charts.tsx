@@ -50,7 +50,7 @@ export default function Charts({ analysis }: Props) {
   const emotionData = toChartData(analysis.emotion_ratios);
 
   return (
-    <div className="card mb-6">
+    <div className="card mb-6 hover:scale-[1.005] transition-transform duration-200">
       <p className="card-title">📊 소비 패턴 시각화</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

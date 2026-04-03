@@ -20,8 +20,9 @@
 @layer components {
   /* 공통 카드 */
   .card {
-    @apply bg-white rounded-2xl border border-gray-200 p-7
-           shadow-sm transition-shadow hover:shadow-md;
+    @apply bg-white rounded-2xl border border-gray-100 p-7
+           shadow-sm transition-all duration-200
+           hover:shadow-md hover:border-gray-200;
   }
 
   .card-title {
@@ -51,25 +52,47 @@
            px-4 py-3 text-sm text-brand-navy;
   }
 
-  /* 기본 버튼 */
+  /* 메인 CTA 버튼 — 크고 강하게 */
   .btn-primary {
-    @apply w-full py-3 rounded-xl font-semibold text-white
-           transition-all active:scale-95;
+    @apply w-full py-4 rounded-2xl font-bold text-white text-base
+           transition-all duration-200 active:scale-95;
     background: linear-gradient(135deg, var(--blue), var(--green));
+    box-shadow: 0 4px 20px rgba(44, 74, 138, 0.25);
   }
 
-  .btn-primary:hover {
-    opacity: 0.92;
-    box-shadow: 0 4px 16px rgba(44,74,138,0.28);
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 28px rgba(44, 74, 138, 0.38);
+    transform: translateY(-1px);
   }
 
   .btn-primary:disabled {
     @apply opacity-40 cursor-not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 
   .btn-secondary {
     @apply w-full py-3 rounded-xl font-semibold text-brand-navy
-           border border-gray-200 bg-white transition-all active:scale-95
-           hover:border-brand-blue hover:bg-brand-light;
+           border border-gray-200 bg-white transition-all duration-200 active:scale-95
+           hover:border-brand-blue hover:bg-brand-light hover:shadow-sm;
+  }
+
+  /* 섹션 구분선 */
+  .section-divider {
+    @apply flex items-center gap-3 my-8;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: '';
+    @apply flex-1 h-px bg-gray-200;
+  }
+
+  /* 체크리스트 아이템 */
+  .checklist-item {
+    @apply flex items-start gap-3 p-3 rounded-xl cursor-pointer
+           transition-all duration-150 hover:bg-gray-50 select-none;
+  }
+  .checklist-item.checked {
+    @apply bg-green-50;
   }
 }
