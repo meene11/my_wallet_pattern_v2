@@ -12,6 +12,7 @@ sqlalchemy>=2.0.0        # ORM (SQLite)
 python-jose[cryptography]>=3.3.0  # JWT
 google-auth>=2.29.0      # Google id_token 검증
 requests>=2.31.0         # google-auth transport 의존성
+psycopg2-binary>=2.9.9   # PostgreSQL 드라이버 (Neon)
 pytest>=8.2.0
 pytest-asyncio>=0.23.0
 ruff>=0.4.0

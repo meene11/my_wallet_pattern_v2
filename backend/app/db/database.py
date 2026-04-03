@@ -1,15 +1,17 @@
-"""SQLAlchemy 데이터베이스 설정 (SQLite)"""
+"""SQLAlchemy 데이터베이스 설정 (PostgreSQL / SQLite 자동 전환)"""
 from __future__ import annotations
+
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./mywallet.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./mywallet.db")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-)
+# SQLite는 check_same_thread 옵션 필요, PostgreSQL은 불필요
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
