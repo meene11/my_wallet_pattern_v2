@@ -60,6 +60,36 @@ function HistoryCard({ item }: { item: HistoryItem }) {
 
       {open && (
         <div className="mt-4 border-t border-gray-100 pt-4">
+
+          {/* 출처 배지 */}
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mb-3 inline-block ${
+            item.source === "input"
+              ? "bg-purple-100 text-purple-700"
+              : "bg-blue-100 text-blue-700"
+          }`}>
+            {item.source === "input" ? "✏️ 직접 입력" : "📂 파일 업로드"}
+          </span>
+
+          {/* 직접 입력 전용: 소비 유형 + 감정 */}
+          {item.source === "input" && item.spending_type && (
+            <div className="bg-brand-light rounded-xl p-3 mb-3">
+              <p className="text-sm font-bold text-brand-navy">{item.spending_type.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{item.spending_type.summary}</p>
+              {item.dominant_emotion && (
+                <p className="text-xs text-brand-blue mt-1 font-semibold">
+                  주요 감정: {item.dominant_emotion} · 감정소비 {item.emotion_spending_ratio}%
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 파일 업로드 전용: 충동소비 수치 */}
+          {item.source === "upload" && item.impulse_ratio != null && (
+            <p className="text-xs text-red-500 font-semibold mb-3">
+              충동소비 {item.impulse_ratio}% · {item.impulse_amount?.toLocaleString()}원 ({item.impulse_count}건)
+            </p>
+          )}
+
           {/* 카테고리 비율 */}
           <p className="text-xs font-bold text-gray-500 mb-2">카테고리별 지출</p>
           <div className="flex flex-wrap gap-1.5 mb-4">
@@ -73,8 +103,8 @@ function HistoryCard({ item }: { item: HistoryItem }) {
               ))}
           </div>
 
-          {/* 충동소비 항목 */}
-          {item.impulse_items.length > 0 && (
+          {/* 파일 업로드 전용: 충동소비 항목 */}
+          {item.source === "upload" && item.impulse_items && item.impulse_items.length > 0 && (
             <>
               <p className="text-xs font-bold text-gray-500 mb-2">충동소비 의심 상위 3건</p>
               <div className="space-y-1.5 mb-4">

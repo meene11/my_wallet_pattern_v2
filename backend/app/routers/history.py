@@ -29,16 +29,24 @@ def save_history(
     """분석 결과를 DB에 저장"""
     record = AnalysisHistory(
         user_id        = current_user.id,
+        source         = req.source,
         total          = req.total,
         count          = req.count,
         impulse_score  = req.impulse_score,
+        cat_ratios     = req.cat_ratios,
+        action_guide   = req.action_guide,
+        # 파일 업로드 전용
         impulse_ratio  = req.impulse_ratio,
         impulse_amount = req.impulse_amount,
         impulse_count  = req.impulse_count,
-        cat_ratios     = req.cat_ratios,
-        impulse_items  = req.impulse_items,
-        action_guide   = req.action_guide,
+        impulse_items  = req.impulse_items or [],
         thresholds     = req.thresholds,
+        # 직접 입력 전용
+        emotion_ratios         = req.emotion_ratios,
+        emotion_spending_ratio = req.emotion_spending_ratio,
+        dominant_emotion       = req.dominant_emotion,
+        spending_type_key      = req.spending_type_key,
+        spending_type          = req.spending_type,
     )
     db.add(record)
     db.commit()

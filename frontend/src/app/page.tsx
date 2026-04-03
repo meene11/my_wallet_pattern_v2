@@ -10,20 +10,25 @@ import ReEngagement  from "@/components/ReEngagement";
 import UploadCard    from "@/components/UploadCard";
 import UploadResult  from "@/components/UploadResult";
 import { useSpending } from "@/hooks/useSpending";
-import { analyzeFile } from "@/lib/api";
+import { analyzeFile, saveInputHistory } from "@/lib/api";
 import type { UploadAnalyzeResponse, ImpulseThresholds } from "@/lib/types";
 import AuthButton from "@/components/AuthButton";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 type Mode = "input" | "upload";
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("input");
+  const { appToken, isLoggedIn } = useAuth();
 
   // 직접 입력 모드 상태
   const {
     entries, analysis, isLoading, error,
     addEntry, clearAll, runAnalysis,
   } = useSpending();
+  const [inputSaved,  setInputSaved]  = useState(false);
+  const [inputSaving, setInputSaving] = useState(false);
 
   // 파일 업로드 모드 상태
   const [uploadResult,     setUploadResult]     = useState<UploadAnalyzeResponse | null>(null);
@@ -42,6 +47,19 @@ export default function Home() {
       setUploadError(e instanceof Error ? e.message : "분석 중 오류가 발생했습니다.");
     } finally {
       setUploadLoading(false);
+    }
+  }
+
+  async function handleSaveInput() {
+    if (!appToken || !analysis) return;
+    setInputSaving(true);
+    try {
+      await saveInputHistory(analysis, appToken);
+      setInputSaved(true);
+    } catch (e) {
+      console.error("저장 실패:", e);
+    } finally {
+      setInputSaving(false);
     }
   }
 
@@ -111,12 +129,33 @@ export default function Home() {
 
           {analysis && (
             <>
-              <ResultCard  analysis={analysis} />
-              <Charts      analysis={analysis} />
+              <ResultCard analysis={analysis} />
+              <Charts     analysis={analysis} />
               <ActionGuide guide={analysis.action_guide} />
+
+              {/* 이력 저장 버튼 */}
+              {isLoggedIn && (
+                <div className="mb-4">
+                  {inputSaved ? (
+                    <p className="text-center text-xs text-green-600 font-semibold py-2">
+                      ✅ 마이페이지에 저장되었습니다
+                    </p>
+                  ) : (
+                    <button
+                      onClick={handleSaveInput}
+                      disabled={inputSaving}
+                      className="w-full py-2.5 rounded-xl border border-brand-blue text-brand-blue
+                                 text-sm font-semibold hover:bg-brand-light transition-colors"
+                    >
+                      {inputSaving ? "저장 중…" : "💾 분석 결과 저장하기"}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <ReEngagement
                 onAddMore={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                onReset={clearAll}
+                onReset={() => { clearAll(); setInputSaved(false); }}
               />
             </>
           )}

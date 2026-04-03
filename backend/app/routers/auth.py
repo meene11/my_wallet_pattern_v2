@@ -16,20 +16,19 @@ from app.schemas.auth import GoogleLoginRequest, TokenResponse, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
-
 
 @router.post("/login", response_model=TokenResponse)
 def google_login(req: GoogleLoginRequest, db: Session = Depends(get_db)):
     """Google id_token 검증 → 사용자 생성/조회 → 앱 JWT 반환"""
-    if not GOOGLE_CLIENT_ID:
+    google_client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    if not google_client_id:
         raise HTTPException(status_code=500, detail="GOOGLE_CLIENT_ID not configured")
 
     try:
         idinfo = google_id_token.verify_oauth2_token(
             req.id_token,
             google_requests.Request(),
-            GOOGLE_CLIENT_ID,
+            google_client_id,
         )
     except ValueError as e:
         raise HTTPException(status_code=401, detail=f"Invalid Google token: {e}")

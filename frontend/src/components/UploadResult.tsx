@@ -9,7 +9,7 @@ import type { ImpulseThresholds, UploadAnalyzeResponse } from "@/lib/types";
 import ActionGuide from "@/components/ActionGuide";
 import BlurGate from "@/components/BlurGate";
 import { useAuth } from "@/context/AuthContext";
-import { saveHistory } from "@/lib/api";
+import { saveUploadHistory } from "@/lib/api";
 
 interface Props {
   result:     UploadAnalyzeResponse;
@@ -49,7 +49,7 @@ export default function UploadResult({ result, thresholds, onReset }: Props) {
   async function handleSave() {
     if (!appToken) return;
     try {
-      await saveHistory(result, appToken, thresholds);
+      await saveUploadHistory(result, appToken, thresholds);
       setSaved(true);
     } catch (e) {
       console.error("이력 저장 실패:", e);

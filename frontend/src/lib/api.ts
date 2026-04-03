@@ -66,14 +66,36 @@ async function authFetch(url: string, token: string, options?: RequestInit) {
 
 // ── 분석 이력 ─────────────────────────────────────────────────────────────────
 
-export async function saveHistory(
+export async function saveUploadHistory(
   result: UploadAnalyzeResponse,
   token: string,
   thresholds?: ImpulseThresholds,
 ): Promise<HistoryItem> {
   return authFetch(`${BASE_URL}/history`, token, {
     method: "POST",
-    body: JSON.stringify({ ...result, thresholds }),
+    body: JSON.stringify({ source: "upload", ...result, thresholds }),
+  });
+}
+
+export async function saveInputHistory(
+  result: AnalyzeResponse,
+  token: string,
+): Promise<HistoryItem> {
+  return authFetch(`${BASE_URL}/history`, token, {
+    method: "POST",
+    body: JSON.stringify({
+      source:                 "input",
+      total:                  result.total,
+      count:                  result.count,
+      impulse_score:          result.impulse_score,
+      cat_ratios:             result.cat_ratios,
+      action_guide:           result.action_guide,
+      emotion_ratios:         result.emotion_ratios,
+      emotion_spending_ratio: result.emotion_spending_ratio,
+      dominant_emotion:       result.dominant_emotion,
+      spending_type_key:      result.spending_type_key,
+      spending_type:          result.spending_type,
+    }),
   });
 }
 

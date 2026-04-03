@@ -6,31 +6,51 @@ from pydantic import BaseModel
 
 
 class SaveHistoryRequest(BaseModel):
+    source:         str            # "input" | "upload"
     total:          int
     count:          int
     impulse_score:  int
-    impulse_ratio:  float
-    impulse_amount: int
-    impulse_count:  int
     cat_ratios:     dict[str, float]
-    impulse_items:  list[dict]
     action_guide:   dict
-    thresholds:     dict | None = None
+
+    # 파일 업로드 전용 (선택)
+    impulse_ratio:  float | None = None
+    impulse_amount: int   | None = None
+    impulse_count:  int   | None = None
+    impulse_items:  list[dict]   = []
+    thresholds:     dict  | None = None
+
+    # 직접 입력 전용 (선택)
+    emotion_ratios:         dict[str, float] | None = None
+    emotion_spending_ratio: float            | None = None
+    dominant_emotion:       str              | None = None
+    spending_type_key:      str              | None = None
+    spending_type:          dict             | None = None
 
 
 class HistoryItem(BaseModel):
-    id:             int
-    analyzed_at:    datetime
-    total:          int
-    count:          int
-    impulse_score:  int
-    impulse_ratio:  float
-    impulse_amount: int
-    impulse_count:  int
-    cat_ratios:     dict[str, float]
-    impulse_items:  list[dict]
-    action_guide:   dict
-    thresholds:     dict | None
+    id:          int
+    analyzed_at: datetime
+    source:      str
+    total:       int
+    count:       int
+    impulse_score: int
+    cat_ratios:  dict[str, float]
+    action_guide: dict
+
+    # 파일 업로드 전용
+    impulse_ratio:  float      | None = None
+    impulse_amount: int        | None = None
+    impulse_count:  int        | None = None
+    impulse_items:  list[dict] = []
+    thresholds:     dict       | None = None
+
+    # 직접 입력 전용
+    emotion_ratios:         dict[str, float] | None = None
+    emotion_spending_ratio: float            | None = None
+    dominant_emotion:       str              | None = None
+    spending_type_key:      str              | None = None
+    spending_type:          dict             | None = None
 
     model_config = {"from_attributes": True}
 
