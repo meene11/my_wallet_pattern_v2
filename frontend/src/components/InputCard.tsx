@@ -36,6 +36,8 @@ export default function InputCard({ onAdd, onAnalyze, onClear, isLoading, entrie
     setAmount("");
   }
 
+  const totalAmount = entries.reduce((s, e) => s + e.amount, 0);
+
   return (
     <div className="card mb-6">
       <p className="card-title">📝 오늘의 소비 입력</p>
@@ -50,7 +52,6 @@ export default function InputCard({ onAdd, onAnalyze, onClear, isLoading, entrie
             inputMode="numeric"
             value={amount}
             onChange={(e) => {
-              // 숫자만 허용, 천 단위 콤마
               const raw = e.target.value.replace(/[^0-9]/g, "");
               setAmount(raw ? parseInt(raw, 10).toLocaleString("ko-KR") : "");
               setError("");
@@ -98,25 +99,33 @@ export default function InputCard({ onAdd, onAnalyze, onClear, isLoading, entrie
       {error && <p className="text-red-500 text-xs mb-3">{error}</p>}
 
       {/* 버튼 행 */}
-      <div className="grid grid-cols-2 gap-3">
-        <button onClick={handleAdd} className="btn-secondary text-sm">
-          ➕ 기록 추가
+      <div className="flex gap-3">
+        <button
+          onClick={handleAdd}
+          className="btn-secondary text-sm flex-shrink-0 w-auto px-5 py-3"
+        >
+          ➕ 추가
         </button>
         <button
           onClick={onAnalyze}
           disabled={entries.length === 0 || isLoading}
-          className="btn-primary text-sm"
+          className="btn-primary flex-1 text-sm"
+          style={{ paddingTop: "12px", paddingBottom: "12px" }}
         >
-          {isLoading ? "분석 중…" : "🔍 분석하기"}
+          {isLoading
+            ? "분석 중…"
+            : entries.length === 0
+              ? "소비를 먼저 입력해주세요"
+              : `🔍 ${entries.length}건 소비 분석하기`}
         </button>
       </div>
 
-      {/* 입력된 내역 테이블 */}
+      {/* 입력된 내역 */}
       {entries.length > 0 && (
         <div className="mt-5 border-t border-gray-100 pt-4">
           <div className="flex justify-between items-center mb-3">
             <span className="text-xs font-semibold text-gray-500">
-              📋 입력된 소비 내역 ({entries.length}건)
+              📋 입력 내역 ({entries.length}건 · 합계 {totalAmount.toLocaleString()}원)
             </span>
             <button
               onClick={onClear}
@@ -132,11 +141,11 @@ export default function InputCard({ onAdd, onAnalyze, onClear, isLoading, entrie
                 className="flex items-center justify-between text-sm
                            bg-gray-50 rounded-xl px-3 py-2"
               >
-                <span className="font-medium text-brand-navy">
+                <span className="font-bold text-brand-navy">
                   {e.amount.toLocaleString("ko-KR")}원
                 </span>
-                <span className="text-gray-500">{e.category}</span>
-                <span className="text-gray-500">
+                <span className="text-gray-500 text-xs">{e.category}</span>
+                <span className="text-gray-500 text-xs">
                   {EMOTION_EMOJI[e.emotion]} {e.emotion}
                 </span>
                 <span className="text-gray-400 text-xs">{e.time}</span>

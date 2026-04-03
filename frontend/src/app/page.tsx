@@ -128,6 +128,13 @@ export default function Home() {
 
           {analysis && (
             <>
+              {/* 섹션 구분 */}
+              <div className="section-divider">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">
+                  분석 결과
+                </span>
+              </div>
+
               <ResultCard analysis={analysis} />
               <Charts     analysis={analysis} />
               <ActionGuide guide={analysis.action_guide} />
