@@ -95,8 +95,8 @@ def parse_file(content: bytes, filename: str) -> pd.DataFrame:
     df_raw.columns = [str(c).strip() for c in df_raw.columns]
 
     # 컬럼 자동 감지
-    date_col     = _detect_column(df_raw, ["날짜", "일자", "거래일", "이용일", "승인일", "date"])
-    amount_col   = _detect_column(df_raw, ["금액", "이용금액", "승인금액", "결제금액", "출금", "amount"])
+    date_col     = _detect_column(df_raw, ["날짜", "일자", "일시", "거래일", "이용일", "승인일", "date"])
+    amount_col   = _detect_column(df_raw, ["거래 금액", "금액", "이용금액", "승인금액", "결제금액", "출금", "amount"])
     merchant_col = _detect_column(df_raw, ["가맹점", "사용처", "내용", "적요", "상호", "merchant", "거래처"])
 
     missing = [n for n, c in [("날짜", date_col), ("금액", amount_col), ("가맹점/내용", merchant_col)] if c is None]
