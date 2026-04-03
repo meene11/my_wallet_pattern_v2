@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import os
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 
 from app.schemas.upload import UploadAnalyzeResponse
 from app.services.file_parser import parse_file, detect_impulse, summarize
@@ -110,10 +110,17 @@ def _rule_guide(summary: dict) -> dict:
 
 
 @router.post("", response_model=UploadAnalyzeResponse)
-async def analyze_file(file: UploadFile = File(...)) -> UploadAnalyzeResponse:
+async def analyze_file(
+    file: UploadFile = File(...),
+    cat_multiplier:   float = Form(2.0),   # 카테고리 평균 배수 (1.5~5.0)
+    night_hour:       int   = Form(21),    # 야간 기준 시간 (18~23)
+    freq_count:       int   = Form(3),     # 동일 카테고리 반복 건수 (2~10)
+    daily_multiplier: float = Form(1.5),   # 일평균 배수 (1.2~3.0)
+) -> UploadAnalyzeResponse:
     """
     CSV 또는 Excel 카드 거래내역을 업로드하면
     충동소비 탐지 + AI 코치 분석 결과를 반환합니다.
+    탐지 임계값은 Form 파라미터로 커스터마이즈 가능합니다.
     """
     ext = (file.filename or "").lower().rsplit(".", 1)[-1]
     if ext not in ALLOWED_EXTENSIONS:
@@ -125,7 +132,13 @@ async def analyze_file(file: UploadFile = File(...)) -> UploadAnalyzeResponse:
 
     try:
         df = parse_file(content, file.filename or "upload.csv")
-        df = detect_impulse(df)
+        df = detect_impulse(
+            df,
+            cat_multiplier=cat_multiplier,
+            night_hour=night_hour,
+            freq_count=freq_count,
+            daily_multiplier=daily_multiplier,
+        )
         summary = summarize(df)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))

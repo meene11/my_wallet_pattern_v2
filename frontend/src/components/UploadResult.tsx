@@ -18,12 +18,20 @@ const BRAND_COLORS = [
   "#1A6B5C", "#27AE60", "#5DEBB8", "#A8D8C8",
 ];
 
+function scoreInfo(score: number) {
+  if (score <= 30) return { emoji: "😊", label: "안전",      color: "#27AE60" };
+  if (score <= 50) return { emoji: "😐", label: "주의",      color: "#F5A623" };
+  if (score <= 70) return { emoji: "😟", label: "위험",      color: "#E67E22" };
+  return           { emoji: "😡", label: "매우 위험", color: "#E74C3C" };
+}
+
 function ScoreRing({ score }: { score: number }) {
   const r = 26, circ = 2 * Math.PI * r;
+  const { color } = scoreInfo(score);
   return (
     <svg width="68" height="68" viewBox="0 0 68 68" className="rotate-[-90deg]">
       <circle cx="34" cy="34" r={r} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="6" />
-      <circle cx="34" cy="34" r={r} fill="none" stroke="#5DEBB8" strokeWidth="6"
+      <circle cx="34" cy="34" r={r} fill="none" stroke={color} strokeWidth="6"
         strokeDasharray={`${(score / 100) * circ} ${circ}`} strokeLinecap="round" />
     </svg>
   );
@@ -63,8 +71,13 @@ export default function UploadResult({ result, onReset }: Props) {
           {/* 충동 소비 지수 */}
           <div className="bg-white/10 rounded-2xl p-4 flex flex-col items-center">
             <ScoreRing score={impulse_score} />
-            <span className="text-3xl font-black text-brand-mint mt-1">{impulse_score}점</span>
-            <span className="text-white/60 text-xs mt-1 text-center">충동 소비 지수</span>
+            <span className="text-3xl font-black mt-1" style={{ color: scoreInfo(impulse_score).color }}>
+              {impulse_score}점
+            </span>
+            <span className="text-xl mt-0.5">{scoreInfo(impulse_score).emoji}</span>
+            <span className="text-white/60 text-xs mt-0.5 text-center font-semibold">
+              {scoreInfo(impulse_score).label}
+            </span>
           </div>
           {/* 충동소비 금액 */}
           <div className="bg-white/10 rounded-2xl p-4 flex flex-col items-center justify-center">

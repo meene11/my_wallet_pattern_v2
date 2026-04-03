@@ -20,6 +20,22 @@ export interface SpendingEntryWithMeta extends SpendingEntry {
   time: string;   // "HH:MM"
 }
 
+// ── 충동소비 탐지 임계값 ──────────────────────────────────────────────────────
+
+export interface ImpulseThresholds {
+  catMultiplier:   number;   // 카테고리 평균 배수 (1.5~5.0, default 2.0)
+  nightHour:       number;   // 야간 기준 시간 (18~23, default 21)
+  freqCount:       number;   // 동일 카테고리 반복 건수 (2~10, default 3)
+  dailyMultiplier: number;   // 일평균 배수 (1.2~3.0, default 1.5)
+}
+
+export const DEFAULT_THRESHOLDS: ImpulseThresholds = {
+  catMultiplier:   2.0,
+  nightHour:       21,
+  freqCount:       3,
+  dailyMultiplier: 1.5,
+};
+
 // ── 파일 업로드 분석 타입 ──────────────────────────────────────────────────────
 
 export interface ImpulseItem {

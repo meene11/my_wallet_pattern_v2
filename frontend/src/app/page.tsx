@@ -11,7 +11,7 @@ import UploadCard    from "@/components/UploadCard";
 import UploadResult  from "@/components/UploadResult";
 import { useSpending } from "@/hooks/useSpending";
 import { analyzeFile } from "@/lib/api";
-import type { UploadAnalyzeResponse } from "@/lib/types";
+import type { UploadAnalyzeResponse, ImpulseThresholds } from "@/lib/types";
 
 type Mode = "input" | "upload";
 
@@ -29,11 +29,11 @@ export default function Home() {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadError,   setUploadError]   = useState<string | null>(null);
 
-  async function handleFileAnalyze(file: File) {
+  async function handleFileAnalyze(file: File, thresholds: ImpulseThresholds) {
     setUploadLoading(true);
     setUploadError(null);
     try {
-      const result = await analyzeFile(file);
+      const result = await analyzeFile(file, thresholds);
       setUploadResult(result);
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "분석 중 오류가 발생했습니다.");
