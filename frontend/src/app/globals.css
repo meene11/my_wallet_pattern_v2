@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy:  #1B2A4A;
+  --blue:  #2C4A8A;
+  --green: #1A6B5C;
+  --mint:  #5DEBB8;
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+    font-family: 'Noto Sans KR', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* 공통 카드 */
+  .card {
+    @apply bg-white rounded-2xl border border-gray-200 p-7
+           shadow-sm transition-shadow hover:shadow-md;
+  }
+
+  .card-title {
+    @apply text-base font-bold text-brand-navy mb-5;
+  }
+
+  /* 그라디언트 카드 (결과, Hero, Re-engagement) */
+  .gradient-card {
+    @apply rounded-2xl p-7 text-white;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 55%, var(--green) 100%);
+  }
+
+  /* 강조 수치 */
+  .metric-value {
+    @apply text-4xl font-black;
+    color: var(--mint);
+  }
+
+  /* 행동 가이드 박스 */
+  .warn-box {
+    @apply bg-amber-50 border-l-4 border-amber-400 rounded-r-xl
+           px-4 py-3 text-sm text-amber-800;
+  }
+
+  .action-box {
+    @apply bg-brand-light border-l-4 border-brand-green rounded-r-xl
+           px-4 py-3 text-sm text-brand-navy;
+  }
+
+  /* 기본 버튼 */
+  .btn-primary {
+    @apply w-full py-3 rounded-xl font-semibold text-white
+           transition-all active:scale-95;
+    background: linear-gradient(135deg, var(--blue), var(--green));
+  }
+
+  .btn-primary:hover {
+    opacity: 0.92;
+    box-shadow: 0 4px 16px rgba(44,74,138,0.28);
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply w-full py-3 rounded-xl font-semibold text-brand-navy
+           border border-gray-200 bg-white transition-all active:scale-95
+           hover:border-brand-blue hover:bg-brand-light;
+  }
+}

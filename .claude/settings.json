@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "ruff 린트 검사 중…",
+            "command": "python -c \"\nimport sys,json,subprocess\ntry:\n    d=json.load(sys.stdin)\n    f=d.get('tool_input',{}).get('file_path','')\n    if 'backend' in f and f.endswith('.py'):\n        r=subprocess.run(['python','-m','ruff','check','backend/app/','--quiet','--select','E,W,F,I'],capture_output=True,text=True,cwd='C:/Users/804/Documents/mywallet_v2')\n        out=(r.stdout+r.stderr).strip()[:500]\n        if out:\n            print(json.dumps({'systemMessage':'[ruff] '+out}))\nexcept:pass\n\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "statusMessage": "TypeScript 타입 검사 중…",
+            "command": "python -c \"\nimport sys,json,subprocess\ntry:\n    d=json.load(sys.stdin)\n    f=d.get('tool_input',{}).get('file_path','')\n    if 'frontend/src' in f and (f.endswith('.ts') or f.endswith('.tsx')):\n        r=subprocess.run(['npx','tsc','--noEmit'],capture_output=True,text=True,cwd='C:/Users/804/Documents/mywallet_v2/frontend',timeout=30)\n        out=(r.stdout+r.stderr).strip()[:600]\n        if out:\n            print(json.dumps({'systemMessage':'[tsc] '+out[:400]+'...' if len(out)>400 else '[tsc] '+out}))\nexcept:pass\n\"",
+            "timeout": 35
+          },
+          {
+            "type": "command",
+            "statusMessage": "테스트 파일 변경 감지…",
+            "command": "python -c \"\nimport sys,json\ntry:\n    d=json.load(sys.stdin)\n    f=d.get('tool_input',{}).get('file_path','')\n    import os; name=os.path.basename(f)\n    if name.startswith('test_') or name.endswith('.test.ts') or name.endswith('.test.tsx'):\n        print(json.dumps({'systemMessage':'[테스트 파일 수정됨] 실행해서 확인하세요:\\n  backend: cd backend && pytest tests/ -v\\n  frontend: cd frontend && npm test'}))\nexcept:pass\n\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
