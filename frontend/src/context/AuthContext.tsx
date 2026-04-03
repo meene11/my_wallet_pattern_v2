@@ -41,13 +41,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status !== "authenticated" || !session?.idToken) return;
 
-    // 이미 교환된 토큰이 있으면 스킵
+    // 이미 교환된 토큰이 있으면 유효성 확인
     const cached = sessionStorage.getItem("appToken");
     if (cached) {
-      setAppToken(cached);
-      const cachedUser = sessionStorage.getItem("appUser");
-      if (cachedUser) setUser(JSON.parse(cachedUser));
-      return;
+      try {
+        const res = await fetch(`${BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${cached}` },
+        });
+        if (res.ok) {
+          const u = await res.json();
+          setAppToken(cached);
+          setUser({ id: u.id, email: u.email, name: u.name, avatar_url: u.avatar_url });
+          return;
+        }
+      } catch {}
+      // 토큰 무효 → 캐시 삭제 후 재발급
+      sessionStorage.removeItem("appToken");
+      sessionStorage.removeItem("appUser");
     }
 
     (async () => {
