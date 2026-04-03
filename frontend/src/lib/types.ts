@@ -20,6 +20,28 @@ export interface SpendingEntryWithMeta extends SpendingEntry {
   time: string;   // "HH:MM"
 }
 
+// ── 파일 업로드 분석 타입 ──────────────────────────────────────────────────────
+
+export interface ImpulseItem {
+  date:           string;
+  merchant:       string;
+  amount:         number;
+  category:       string;
+  impulse_reason: string;
+}
+
+export interface UploadAnalyzeResponse {
+  total:          number;
+  count:          number;
+  impulse_count:  number;
+  impulse_amount: number;
+  impulse_ratio:  number;
+  impulse_score:  number;
+  cat_ratios:     Record<string, number>;
+  impulse_items:  ImpulseItem[];
+  action_guide:   ActionGuideDetail;
+}
+
 // ── API 응답 타입 ─────────────────────────────────────────────────────────────
 
 export interface SpendingTypeDetail {

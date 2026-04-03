@@ -1,4 +1,4 @@
-import type { AnalyzeResponse, SpendingEntry } from "./types";
+import type { AnalyzeResponse, SpendingEntry, UploadAnalyzeResponse } from "./types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -17,4 +17,21 @@ export async function analyzeSpending(
   }
 
   return res.json() as Promise<AnalyzeResponse>;
+}
+
+export async function analyzeFile(file: File): Promise<UploadAnalyzeResponse> {
+  const form = new FormData();
+  form.append("file", file);
+
+  const res = await fetch(`${BASE_URL}/upload`, {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail?.detail ?? `API error ${res.status}`);
+  }
+
+  return res.json() as Promise<UploadAnalyzeResponse>;
 }

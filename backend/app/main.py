@@ -15,14 +15,14 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import analyze
+from app.routers import analyze, upload
 
 load_dotenv()
 
 app = FastAPI(
     title="MyWallet v3 API",
-    description="감정 소비 분석 + 행동 가이드 API",
-    version="3.0.0",
+    description="감정 소비 분석 + 파일 업로드 충동소비 탐지 API",
+    version="3.1.0",
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
@@ -39,6 +39,7 @@ app.add_middleware(
 
 # ── 라우터 ────────────────────────────────────────────────────────────────────
 app.include_router(analyze.router)
+app.include_router(upload.router)
 
 
 @app.get("/health")
