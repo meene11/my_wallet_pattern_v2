@@ -267,7 +267,80 @@ prompt = """
 
 ---
 
-## 9. 에러 처리 전략
+## 9. Claude Code 하네스 엔지니어링
+
+### 하네스란
+
+Claude Code가 파일을 수정할 때마다 자동으로 실행되는 훅(hook) 시스템이다.
+`.claude/settings.json`에 `PostToolUse` 이벤트로 설정한다.
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [{ "type": "command", "command": "..." }]
+      }
+    ]
+  }
+}
+```
+
+파일이 저장되는 순간 → 린트/타입체크가 자동 실행 → 오류 즉시 감지.
+사람이 직접 `ruff .` 또는 `tsc --noEmit`을 실행할 필요가 없다.
+
+### Windows에서 jq 대신 Python을 쓴 이유
+
+훅 커맨드는 `stdin`으로 JSON을 받아 파일 경로를 추출해야 한다.
+Linux/Mac에서는 `jq`를 쓰지만, **Windows에는 기본 설치되지 않는다.**
+
+```bash
+# Linux/Mac (jq 사용)
+jq -r '.tool_input.file_path'
+
+# Windows (Python으로 대체)
+python -c "
+import json, sys
+data = json.load(sys.stdin)
+path = data.get('tool_input', {}).get('file_path', '')
+print(path)
+"
+```
+
+Python은 백엔드 개발 환경에 이미 설치돼 있으므로 추가 설치 없이 동작한다.
+
+### 이 프로젝트의 훅 3개
+
+| 트리거 | 실행 내용 |
+|--------|-----------|
+| `backend/**/*.py` 수정 | `ruff` 린트 → 오류 시 경고 출력 |
+| `frontend/src/**/*.ts(x)` 수정 | `tsc --noEmit` 타입 체크 |
+| `test_*.py` / `*.test.ts` 수정 | "테스트 실행하세요" 알림 |
+
+### 하네스가 실제로 잡아준 것들
+
+이번 프로젝트에서 하네스가 런타임 전에 잡아준 오류들:
+
+| 오류 | 발견 시점 |
+|------|-----------|
+| `load_dotenv()` import 순서 문제 | ruff 경고로 즉시 감지 |
+| TypeScript 타입 불일치 | tsc가 파일 저장 즉시 에러 출력 |
+| `useState` 중복 import | 파일 저장 즉시 감지 |
+
+하네스 없이 개발했다면 이 오류들이 브라우저 런타임이나 서버 실행 시에야 발견됐을 것이다.
+특히 `load_dotenv()` 순서 문제는 서버가 정상 실행되어도 env 값이 빈값으로 읽히는 문제라
+런타임에서 재현하기 어려운 버그였다.
+
+### 하네스의 한계
+
+- 훅이 실패해도 Claude Code 작업이 중단되지 않는다 (알림만)
+- 테스트 자동 실행은 알림만 주고 실제 실행은 개발자가 직접 해야 한다
+- Windows 경로 처리 시 슬래시 방향에 주의 필요
+
+---
+
+## 10. 에러 처리 전략
 
 ### 백엔드 폴백 체계
 
