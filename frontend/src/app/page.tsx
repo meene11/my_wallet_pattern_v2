@@ -12,6 +12,7 @@ import UploadResult  from "@/components/UploadResult";
 import { useSpending } from "@/hooks/useSpending";
 import { analyzeFile } from "@/lib/api";
 import type { UploadAnalyzeResponse, ImpulseThresholds } from "@/lib/types";
+import AuthButton from "@/components/AuthButton";
 
 type Mode = "input" | "upload";
 
@@ -25,13 +26,15 @@ export default function Home() {
   } = useSpending();
 
   // 파일 업로드 모드 상태
-  const [uploadResult,  setUploadResult]  = useState<UploadAnalyzeResponse | null>(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
-  const [uploadError,   setUploadError]   = useState<string | null>(null);
+  const [uploadResult,     setUploadResult]     = useState<UploadAnalyzeResponse | null>(null);
+  const [uploadThresholds, setUploadThresholds] = useState<ImpulseThresholds | undefined>();
+  const [uploadLoading,    setUploadLoading]    = useState(false);
+  const [uploadError,      setUploadError]      = useState<string | null>(null);
 
   async function handleFileAnalyze(file: File, thresholds: ImpulseThresholds) {
     setUploadLoading(true);
     setUploadError(null);
+    setUploadThresholds(thresholds);
     try {
       const result = await analyzeFile(file, thresholds);
       setUploadResult(result);
@@ -52,6 +55,11 @@ export default function Home() {
   return (
     <main>
       {/* ── [1] HERO ─────────────────────────────────────── */}
+      {/* ── 헤더: 로그인 버튼 ── */}
+      <div className="flex justify-end mb-2">
+        <AuthButton />
+      </div>
+
       <Hero />
 
       {/* ── 모드 탭 ──────────────────────────────────────── */}
@@ -134,6 +142,7 @@ export default function Home() {
           {uploadResult && (
             <UploadResult
               result={uploadResult}
+              thresholds={uploadThresholds}
               onReset={() => { setUploadResult(null); setUploadError(null); }}
             />
           )}

@@ -58,6 +58,30 @@ export interface UploadAnalyzeResponse {
   action_guide:   ActionGuideDetail;
 }
 
+// ── 분석 이력 / 챌린지 타입 ──────────────────────────────────────────────────
+
+export interface HistoryItem {
+  id:             number;
+  analyzed_at:    string;
+  total:          number;
+  count:          number;
+  impulse_score:  number;
+  impulse_ratio:  number;
+  impulse_amount: number;
+  impulse_count:  number;
+  cat_ratios:     Record<string, number>;
+  impulse_items:  ImpulseItem[];
+  action_guide:   ActionGuideDetail;
+  thresholds:     ImpulseThresholds | null;
+}
+
+export interface ChallengeOut {
+  id:           number;
+  started_at:   string;
+  target_score: number;
+  status:       "active" | "completed" | "failed";
+}
+
 // ── API 응답 타입 ─────────────────────────────────────────────────────────────
 
 export interface SpendingTypeDetail {

@@ -15,14 +15,20 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import analyze, upload
+from app.db.database import Base, engine
+from app.models import history as _history_models  # noqa: F401 — 테이블 등록
+from app.models import user as _user_models        # noqa: F401 — 테이블 등록
+from app.routers import analyze, auth, history, upload
 
 load_dotenv()
 
+# 테이블 자동 생성 (SQLite)
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
-    title="MyWallet v3 API",
-    description="감정 소비 분석 + 파일 업로드 충동소비 탐지 API",
-    version="3.1.0",
+    title="MyWallet v2 API",
+    description="감정 소비 분석 + 파일 업로드 충동소비 탐지 + 회원 이력 API",
+    version="2.1.0",
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
@@ -40,6 +46,8 @@ app.add_middleware(
 # ── 라우터 ────────────────────────────────────────────────────────────────────
 app.include_router(analyze.router)
 app.include_router(upload.router)
+app.include_router(auth.router)
+app.include_router(history.router)
 
 
 @app.get("/health")

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { ActionGuideDetail } from "@/lib/types";
+import { useAuth } from "@/context/AuthContext";
+import { startChallenge } from "@/lib/api";
 
 interface Props {
   guide: ActionGuideDetail;
@@ -9,6 +11,25 @@ interface Props {
 
 export default function ActionGuide({ guide }: Props) {
   const [challenged, setChallenged] = useState(false);
+  const [loading,    setLoading]    = useState(false);
+  const { isLoggedIn, appToken, login } = useAuth();
+
+  async function handleChallenge() {
+    if (!isLoggedIn) {
+      login();
+      return;
+    }
+    if (!appToken) return;
+    setLoading(true);
+    try {
+      await startChallenge(50, appToken);  // 목표: 충동소비 지수 50 이하
+      setChallenged(true);
+    } catch {
+      setChallenged(true);  // 실패해도 UI는 성공 처리
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="card mb-6">
@@ -41,13 +62,19 @@ export default function ActionGuide({ guide }: Props) {
           <span className="text-green-700 font-semibold text-sm">
             🎉 챌린지 시작! 오늘 하루 의식적인 소비를 실천해보세요.
           </span>
+          {isLoggedIn && (
+            <p className="text-xs text-green-600 mt-1">마이페이지에서 진행 상황을 확인할 수 있어요</p>
+          )}
         </div>
       ) : (
         <button
-          onClick={() => setChallenged(true)}
+          onClick={handleChallenge}
+          disabled={loading}
           className="btn-primary text-sm"
         >
-          🎯 {guide.challenge} 챌린지 시작
+          {loading ? "저장 중…" : isLoggedIn
+            ? `🎯 ${guide.challenge} 챌린지 시작`
+            : `🎯 ${guide.challenge} 챌린지 시작 (로그인 필요)`}
         </button>
       )}
     </div>
